@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Multicolors K2 - Compatible con Slides</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        @font-face {
+            font-family: 'Gagalin';
+            src: url('https://db.onlinewebfonts.com/t/1574983b6ff94563175231c26915033c.woff2') format('woff2');
+        }
+
+        :root {
+            --color-principal: #2563eb;
+            --color-degradado: #60a5fa; 
+            --color-fondo-dinamico: #ffffff;
+            --texto-cinta: #000000;
+            --fondo: #f3f4f6;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--fondo);
+            display: flex;
+            height: 100vh;
+        }
+
+        /* PANEL DE CONTROL */
+        #panel-control {
+            width: 300px;
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.08);
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .btn-descargar {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-descargar:hover { background: #059669; }
+
+        h2 { margin-top: 0; font-size: 1.2rem; color: #333; }
+        h3 { font-size: 0.85rem; border-bottom: 2px solid var(--color-principal); padding-bottom: 3px; margin-top: 20px; color: #111; text-transform: uppercase; }
+
+        label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 2px;
+            margin-top: 8px;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 6px 10px;
+            margin-bottom: 2px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            font-size: 0.85rem;
+        }
+
+        .btn-foto {
+            background: #f0f0f0;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 0.7rem;
+        }
+
+        /* ÁREA DE PREVISUALIZACIÓN */
+        #contenedor-previa {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #525659;
+            overflow: auto;
+        }
+
+        #plantilla-canvas {
+            width: 1050px;
+            height: 650px;
+            background: linear-gradient(135deg, var(--color-fondo-dinamico) 0%, #ffffff 50%, var(--color-fondo-dinamico) 100%);
+            padding: 20px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; 
+        }
+
+         /* LOGO SUPERIOR DERECHA - AJUSTADO PEQUEÑO */
+
+        #logo-superior {
+            position: absolute;
+            top: 50px; 
+            right: 30px; 
+            max-width: 120px; 
+            max-height: 70px; 
+            object-fit: contain;
+            z-index: 10;
+        }
+
+         /* RECUADRO INFERIOR DERECHA - GRANDE Y CARGABLE */
+
+        #contenedor-inferior-grande {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            width: 450px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #logo-inferior-grande {
+            position: absolute;
+            bottom: -40px;
+            right: 40px;
+            max-width: 280px;
+            max-height: 108%;
+            object-fit: contain;
+            z-index: 10;
+        }
+
+         /* ESTILO ESFERA */
+
+        .esfera-grado {
+            position: absolute;
+            top: 50px;
+            left: 25px;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff 0%, rgba(255,255,255,0) 50%), 
+                        linear-gradient(135deg, var(--color-principal) 0%, var(--color-degradado) 100%);
+            border: 3px solid var(--color-principal);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Gagalin';
+            font-size: 28px;
+            color: var(--texto-cinta);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 5;
+            text-align: center;
+            padding: 5px;
+        }
+
+        /* CINTA SUPERIOR */
+
+        .cinta-contenedor {
+            position: relative;
+            display: inline-block;
+            padding: 10px 100px;
+            color: var(--texto-cinta);
+            z-index: 2;
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .cinta-contenedor::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, var(--color-principal) 0%, var(--color-degradado) 100%);
+            border-radius: 15px;
+            transform: skewX(-12deg);
+        }
+
+        .texto-familia-etiqueta, .texto-apellido-valor {
+            font-family: 'Gagalin';
+            font-size: 34px; 
+            font-weight: 700;
+            text-decoration: underline;
+            display: block;
+            line-height: 1.1;
+        }
+
+        
+ /* GRID PRINCIPAL */
+
+        .grid-principal {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) 240px;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .nombre-gagalin {
+            font-family: 'Gagalin';
+            font-weight: bold;
+            font-size: 30px;
+            color: #000000;
+            text-transform: uppercase;
+            margin: 10px 0 5px 0;
+            line-height: 1;
+            min-height: 30px;
+        }
+
+        .foto-perfil {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--color-principal);
+            object-fit: cover;
+            background: white; /* Cambiado a blanco para evitar transparencia en descarga */
+            display: block;
+            overflow: hidden;
+        }
+
+        .grid-principal > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-card, .ref-box {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-top: 8px;
+            text-align: left;
+            position: relative;
+            border-left: 5px solid var(--color-principal);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+            z-index: 1;
+        }
+
+        .info-card, .ref-box {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-top: 8px;
+            text-align: left;
+            border: 3px solid var(--color-principal);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+
+        .estilo-nunito {
+            font-family: 'Nunito';
+            font-size: 15px;
+            color: #000000;
+            line-height: 1.3;
+            min-height: 42px;
+        }
+
+        .info-card ul { list-style: none; padding: 0; margin: 0; }
+        .info-card li:not(:empty)::before { content: "• "; font-weight: bold; color: var(--color-principal); }
+
+        .col-referencias {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+        
+        .ref-box {
+            margin-top: 0;
+            padding: 8px;
+            font-size: 13px;
+        }
+        .ref-box b { 
+            display: block; 
+            text-decoration: underline; 
+            color:black; 
+            margin-bottom: 2px; }
+
+        .footer-ingresos {
+            margin-top: auto;
+            text-align: center;
+            padding: 15px;
+        }
+        .caja-ingresos {
+            display: inline-block;
+            background: white;
+            padding: 8px 40px;
+            border-radius: 20px;
+            border: 2px solid var(--color-principal);
+            font-family: 'Nunito';
+            font-weight: 700;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="panel-control">
+    <h2>Nueva Plantilla</h2>
+    <button class="btn-descargar" onclick="descargarPlantilla()">⬇️ DESCARGAR IMAGEN</button>
+    
+    <h3>Imágenes Globales</h3>
+<label>Archivo Inferior (Derecha)</label>
+<input type="file" accept="image/*" class="btn-foto" onchange="cargarImagen(event, 'logo-inferior-grande')">
+
+    <label>Grado Izquierdo</label>
+    <input type="text" placeholder="Ej: K2" oninput="actualizarTexto('display-grado', this.value)">
+
+    <label>Grado Derecho</label>
+    <input type="text" placeholder="Ej: K3" oninput="actualizarTexto('display-grado-2', this.value)">
+    <label>Color Principal</label>
+    <input type="color" value="#2563eb" oninput="actualizarColores(this.value)">
+
+    <label>Color Texto Cinta</label>
+    <select onchange="document.documentElement.style.setProperty('--texto-cinta', this.value)">
+        <option value="#000000">Negro</option>
+        <option value="#ffffff">Blanco</option>
+    </select>
+
+    <label>Apellido Familia</label>
+    <input type="text" placeholder="Escribe el apellido aquí" oninput="actualizarTexto('display-apellido', this.value)">
+
+    <div id="controles-integrantes"></div>
+
+    <h3>Referencias FLI</h3>
+    <input type="text" value="REFERENCIAS FLI" oninput="actualizarTexto('titulo-ref', this.value)">
+    <input type="text" placeholder="Etiqueta 1" oninput="actualizarTexto('label-ref-1', this.value)">
+    <input type="text" placeholder="Valor 1" oninput="actualizarTexto('val-ref-1', this.value)">
+
+    <h3>Ingresos</h3>
+    <input type="text" placeholder="$ 0.000.000" oninput="actualizarTexto('total-ing', this.value)">
+</div>
+
+<div id="contenedor-previa">
+    <div id="plantilla-canvas">
+        <img id="logo-superior" src="https://lh3.googleusercontent.com/u/0/d/1OzcIWmU-mnczekMlGBwKxufoFxgSbJzO">
+        
+        <div id="contenedor-inferior-grande">
+            <img id="logo-inferior-grande" src="" style="display: none;">
+        </div>
+
+        <div class="esfera-grado" id="display-grado"></div>
+
+        <div class="esfera-grado" id="display-grado-2" style="left: 115px;"></div>
+
+        <div style="text-align:center; margin-bottom: 20px;"></div>
+        
+
+        <div style="text-align:center; margin-bottom: 20px;">
+            <div class="cinta-contenedor">
+                <span class="texto-familia-etiqueta">FAMILIA</span>
+                <span class="texto-apellido-valor" id="display-apellido">_____</span>
+            </div>
+        </div>
+
+        <div class="grid-principal" id="grid-dinamico"></div>
+
+        <div class="footer-ingresos">
+            <div class="caja-ingresos">INGRESOS TOTALES: <span id="total-ing">...</span></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const grid = document.getElementById('grid-dinamico');
+const controles = document.getElementById('controles-integrantes');
+
+for(let i=1; i<=4; i++) {
+    controles.innerHTML += `
+        <h3>Integrante ${i}</h3>
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <input type="file" accept="image/*" class="btn-foto" onchange="cargarImagen(event, 'img-${i}')" style="flex: 1;">
+            <button type="button" onclick="pegarImagen('img-${i}')" title="Pegar desde portapapeles" style="padding: 5px 10px; cursor: pointer;">📋 Pegar</button>
+        </div>
+        <input type="text" placeholder="Nombre" oninput="actualizarTexto('nom-${i}', this.value)">
+        <label>Bloque Superior</label>
+        <input type="text" placeholder="Edad" oninput="actualizarTexto('edad-${i}', this.value)">
+        <input type="text" placeholder="Empresa" oninput="actualizarTexto('empresa-${i}', this.value)">
+        <label>Bloque Inferior</label>
+        <input type="text" placeholder="Cargo" oninput="actualizarTexto('cargo-${i}', this.value)">
+        <input type="text" placeholder="Nacimiento" oninput="actualizarTexto('nac-${i}', this.value)">
+        <input type="text" placeholder="Residencia" oninput="actualizarTexto('res-${i}', this.value)">
+    `;
+
+    grid.innerHTML += `
+        <div>
+            <img id="img-${i}" src="" class="foto-perfil">
+            <div class="nombre-gagalin" id="nom-${i}"></div>
+            <div class="info-card estilo-nunito">
+                <div id="edad-${i}"></div>
+                <div id="empresa-${i}"></div>
+            </div>
+            <div class="info-card estilo-nunito">
+                <ul>
+                    <li id="cargo-${i}"></li>
+                    <li id="nac-${i}"></li>
+                    <li id="res-${i}"></li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+grid.innerHTML += `
+    <div class="col-referencias estilo-nunito">
+        <div id="titulo-ref" style="font-family:'Gagalin'; font-size:18px;font-weight: bold; margin-bottom:5px;">REFERENCIAS FLI</div>
+        <div class="ref-box"><b id="label-ref-1"></b><span id="val-ref-1"></span></div>
+    </div>
+`;
+
+/* Lógica de Procesamiento de Imagen */
+function renderizarEnDestino(blob, idDestino) {
+    const lector = new FileReader();
+    lector.onload = (e) => {
+        const img = document.getElementById(idDestino);
+        img.src = e.target.result;
+        if(idDestino === 'logo-inferior-grande') {
+            img.style.display = "block";
+            img.parentNode.style.display = "flex";
+        }
+    };
+    lector.readAsDataURL(blob);
+}
+
+function cargarImagen(event, idDestino) {
+    if(event.target.files && event.target.files[0]) {
+        renderizarEnDestino(event.target.files[0], idDestino);
+    }
+}
+
+// NUEVA FUNCIÓN: Pegar desde el botón
+async function pegarImagen(idDestino) {
+    try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+            const imageTypes = item.types.filter(type => type.startsWith('image/'));
+            if (imageTypes.length > 0) {
+                const blob = await item.getType(imageTypes[0]);
+                renderizarEnDestino(blob, idDestino);
+                return;
+            }
+        }
+        alert("No se encontró ninguna imagen en el portapapeles.");
+    } catch (err) {
+        console.error("Error al pegar:", err);
+        alert("Para pegar, permite el acceso al portapapeles o usa Ctrl+V sobre el botón.");
+    }
+}
+
+/* Resto de funciones de estilo y texto */
+
+function adjustColor(color, percent) {
+    let num = parseInt(color.replace("#",""),16), amt = Math.round(2.55 * percent);
+    let R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R<255?R<0?0:R:255)*0x10000 + (G<255?G<0?0:G:255)*0x100 + (B<255?B<0?0:B:255)).toString(16).slice(1);
+}
+
+function getLightTone(color) {
+    let num = parseInt(color.replace("#",""),16),
+        R = num >> 16, G = num >> 8 & 0x00FF, B = num & 0x0000FF;
+    let newR = Math.round(R + (255 - R) * 0.9);
+    let newG = Math.round(G + (255 - G) * 0.9);
+    let newB = Math.round(B + (255 - B) * 0.9);
+    return "#" + (0x1000000 + newR * 0x10000 + newG * 0x100 + newB).toString(16).slice(1);
+}
+
+function actualizarColores(color){
+    const lightColor = getLightTone(color);
+    document.documentElement.style.setProperty('--color-principal', color);
+    document.documentElement.style.setProperty('--color-degradado', adjustColor(color, 30));
+    document.documentElement.style.setProperty('--color-fondo-dinamico', lightColor);
+    document.getElementById('plantilla-canvas').style.background = `linear-gradient(135deg, ${lightColor} 0%, #ffffff 50%, ${lightColor} 100%)`;
+}
+
+function actualizarTexto(id, valor){
+    const el = document.getElementById(id);
+    if(!el) return;
+    
+    if(valor.trim() === "") {
+        if(id === "display-apellido") el.innerText = "_____";
+        // Aquí añadimos el ID de la segunda esfera para el valor por defecto
+        else if(id === "display-grado" || id === "display-grado-2") el.innerText = "K2";
+        else el.innerText = "";
+    } else if(id.includes('nom') || id.includes('apellido') || id === 'titulo-ref' || id === 'display-grado' || id === 'display-grado-2') {
+        // Aquí añadimos id === 'display-grado-2' para que también lo ponga en MAYÚSCULAS
+        el.innerText = valor.toUpperCase();
+    } else {
+        el.innerText = valor;
+    }
+}
+
+async function descargarPlantilla() {
+    // Pequeña pausa para asegurar que el DOM está estable
+    const canvas = await html2canvas(document.getElementById('plantilla-canvas'), {
+        scale: 4,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false
+    });
+
+    const link = document.createElement("a");
+    link.download = "Plantilla_Familia.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+}
+
+actualizarColores("#2563eb");
+
+/* ====== EVENTOS DE ARRASTRE Y PEGADO DIRECTO ====== */
+document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener("dragover", function(e){
+        e.preventDefault();
+        this.style.border = "2px dashed #2563eb";
+    });
+    input.addEventListener("dragleave", function(){
+        this.style.border = "";
+    });
+    input.addEventListener("drop", function(e){
+        e.preventDefault();
+        this.style.border = "";
+        const archivo = e.dataTransfer.files[0];
+        if(archivo && archivo.type.startsWith("image/")){
+            const onchangeAttr = this.getAttribute("onchange");
+            const idDestino = onchangeAttr.match(/'([^']+)'/)[1];
+            renderizarEnDestino(archivo, idDestino);
+        }
+    });
+    // Soporte para Ctrl+V directo sobre el input
+    input.addEventListener("paste", function(e){
+        const onchangeAttr = this.getAttribute("onchange");
+        const idDestino = onchangeAttr.match(/'([^']+)'/)[1];
+        const item = e.clipboardData.items[0];
+        if (item && item.type.indexOf("image") !== -1) {
+            renderizarEnDestino(item.getAsFile(), idDestino);
+        }
+    });
+});
+</script>
+</body>
+</html>
