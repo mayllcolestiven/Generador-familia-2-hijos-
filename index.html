@@ -387,7 +387,7 @@
         </select>
 
         <label>Apellido Familia</label>
-        <input type="text" placeholder="Escribe el apellido aquí"
+        <input id="nombre_guardado_apellido" type="text" placeholder="Escribe el apellido aquí"
             oninput="actualizarTexto('display-apellido', this.value)">
 
         <div id="controles-integrantes"></div>
@@ -560,7 +560,7 @@
                 logging: false
             });
             const link = document.createElement("a");
-            link.download = "Plantilla_Familia.png";
+            link.download = "Familia " + document.getElementById("nombre_guardado_apellido").value;
             link.href = canvas.toDataURL("image/png");
             link.click();
         }
