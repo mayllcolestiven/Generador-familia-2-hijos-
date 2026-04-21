@@ -216,12 +216,13 @@
             line-height: 1.1;
         }
 
+
         /* GRID PRINCIPAL */
 
         .grid-principal {
             margin-top: 20px;
             display: grid;
-            grid-template-columns: repeat(3, 1fr) 240px;
+            grid-template-columns: repeat(4, 1fr) 240px;
             gap: 15px;
             text-align: center;
         }
@@ -257,7 +258,7 @@
 
         .info-card,
         .ref-box {
-            background: #f9fafb;
+            background: white;
             padding: 8px 12px;
             border-radius: 10px;
             margin-top: 8px;
@@ -267,7 +268,6 @@
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
             z-index: 1;
         }
-
 
         .info-card,
         .ref-box {
@@ -368,17 +368,13 @@
         <label>Archivo Inferior (Derecha)</label>
         <input type="file" accept="image/*" class="btn-foto" onchange="cargarImagen(event, 'logo-inferior-grande')">
 
+        <label>Grado Izquierdo</label>
+        <input type="text" placeholder="Ej: K2" oninput="actualizarTexto('display-grado', this.value)">
+
+        <label>Grado Derecho</label>
+        <input type="text" placeholder="Ej: K3" oninput="actualizarTexto('display-grado-2', this.value)">
         <label>Color Principal</label>
         <input type="color" value="#2563eb" oninput="actualizarColores(this.value)">
-
-        <label>Color Texto Cinta</label>
-        <select onchange="document.documentElement.style.setProperty('--texto-cinta', this.value)">
-            <option value="#000000">Negro</option>
-            <option value="#ffffff">Blanco</option>
-        </select>
-
-        <div style="margin-top: 20px;"></div> <label>Grado (Esfera)</label>
-        <input type="text" placeholder="Ej: K2" oninput="actualizarTexto('display-grado', this.value)">
 
         <label>Color Texto Cinta</label>
         <select onchange="document.documentElement.style.setProperty('--texto-cinta', this.value)">
@@ -411,6 +407,11 @@
 
             <div class="esfera-grado" id="display-grado"></div>
 
+            <div class="esfera-grado" id="display-grado-2" style="left: 115px;"></div>
+
+            <div style="text-align:center; margin-bottom: 20px;"></div>
+
+
             <div style="text-align:center; margin-bottom: 20px;">
                 <div class="cinta-contenedor">
                     <span class="texto-familia-etiqueta">FAMILIA</span>
@@ -431,7 +432,7 @@
         const grid = document.getElementById('grid-dinamico');
         const controles = document.getElementById('controles-integrantes');
 
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 4; i++) {
             controles.innerHTML += `
         <h3>Integrante ${i}</h3>
         <div style="display: flex; gap: 5px; margin-bottom: 10px;">
@@ -514,6 +515,7 @@
         }
 
         /* Resto de funciones de estilo y texto */
+
         function adjustColor(color, percent) {
             let num = parseInt(color.replace("#", ""), 16), amt = Math.round(2.55 * percent);
             let R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
@@ -540,11 +542,14 @@
         function actualizarTexto(id, valor) {
             const el = document.getElementById(id);
             if (!el) return;
+
             if (valor.trim() === "") {
                 if (id === "display-apellido") el.innerText = "_____";
+                // Aquí añadimos el ID de la segunda esfera para el valor por defecto
                 else if (id === "display-grado" || id === "display-grado-2") el.innerText = "K2";
                 else el.innerText = "";
             } else if (id.includes('nom') || id.includes('apellido') || id === 'titulo-ref' || id === 'display-grado' || id === 'display-grado-2') {
+                // Aquí añadimos id === 'display-grado-2' para que también lo ponga en MAYÚSCULAS
                 el.innerText = valor.toUpperCase();
             } else {
                 el.innerText = valor;
@@ -552,6 +557,7 @@
         }
 
         async function descargarPlantilla() {
+            // Pequeña pausa para asegurar que el DOM está estable
             const canvas = await html2canvas(document.getElementById('plantilla-canvas'), {
                 scale: 4,
                 useCORS: true,
@@ -559,6 +565,7 @@
                 backgroundColor: null,
                 logging: false
             });
+
             const link = document.createElement("a");
             link.download = "Familia " + document.getElementById("nombre_guardado_apellido").value;
             link.href = canvas.toDataURL("image/png");
