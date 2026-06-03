@@ -128,8 +128,8 @@
 
         #logo-superior {
             position: absolute;
-            top: 50px;
-            right: 30px;
+            top: 40px;
+            right: 130px;
             max-width: 120px;
             max-height: 70px;
             object-fit: contain;
@@ -152,10 +152,10 @@
 
         #logo-inferior-grande {
             position: absolute;
-            bottom: 0px;
+            bottom: -35px;
             right: 10px;
             max-width: 280px;
-            max-height: 108%;
+            max-height: 110%;
             object-fit: contain;
             z-index: 10;
         }
@@ -280,14 +280,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
         }
 
-        .estilo-nunito {
-            font-family: 'Nunito';
-            font-size: 15px;
-            color: #000000;
-            line-height: 1.3;
-            min-height: 42px;
-        }
-
         .info-card ul {
             list-style: none;
             padding: 0;
@@ -303,39 +295,47 @@
         .col-referencias {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 16px;
             text-align: left;
+            margin-top: -60px;
+        }
+
+         .bloque-ingresos-lateral {
+           margin-top: 25px; 
+        }
+
+        .titulo-referencias {
+            font-family: 'Gagalin';
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .estilo-nunito {
+            font-family: 'Nunito';
+            font-size: 15px;
+            color: #000000;
+            line-height: 1.3;
+            min-height: 42px;
         }
 
         .ref-box {
             margin-top: 0;
             padding: 8px;
             font-size: 13px;
+            background: white;
+            border-radius: 10px;
+            border: 3px solid var(--color-principal);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
         }
 
         .ref-box b {
             display: block;
-            text-decoration: underline;
+            text-decoration: none;
             color: black;
             margin-bottom: 2px;
         }
 
-        .footer-ingresos {
-            margin-top: auto;
-            text-align: center;
-            padding: 15px;
-        }
-
-        .caja-ingresos {
-            display: inline-block;
-            background: white;
-            padding: 8px 40px;
-            border-radius: 20px;
-            border: 2px solid var(--color-principal);
-            font-family: 'Nunito';
-            font-weight: 700;
-            font-size: 18px;
-        }
     </style>
 </head>
 
@@ -383,7 +383,7 @@
         </select>
 
         <label>Apellido Familia</label>
-        <input id="nombre_guardado_apellido" type="text" placeholder="Escribe el apellido aquí"
+        <input type="text" placeholder="Escribe el apellido aquí"
             oninput="actualizarTexto('display-apellido', this.value)">
 
         <div id="controles-integrantes"></div>
@@ -392,6 +392,8 @@
         <input type="text" value="REFERENCIAS FLI" oninput="actualizarTexto('titulo-ref', this.value)">
         <input type="text" placeholder="Etiqueta 1" oninput="actualizarTexto('label-ref-1', this.value)">
         <input type="text" placeholder="Valor 1" oninput="actualizarTexto('val-ref-1', this.value)">
+        <input type="text" placeholder="Etiqueta 2" oninput="actualizarTexto('label-ref-2', this.value)">
+        <input type="text" placeholder="Valor 2" oninput="actualizarTexto('val-ref-2', this.value)">
 
         <h3>Ingresos</h3>
         <input type="text" placeholder="$ 0.000.000" oninput="actualizarTexto('total-ing', this.value)">
@@ -401,9 +403,10 @@
         <div id="plantilla-canvas">
             <img id="logo-superior" src="https://lh3.googleusercontent.com/u/0/d/1OzcIWmU-mnczekMlGBwKxufoFxgSbJzO">
 
-            <div id="contenedor-inferior-grande">
-                <img id="logo-inferior-grande" src="" style="display: none;">
-            </div>
+             <div id="contenedor-inferior-grande" style="display: flex;">
+    <img id="logo-inferior-grande" src="jaguar oficla del sistema.png" style="display: block;">
+</div>
+
 
             <div class="esfera-grado" id="display-grado"></div>
 
@@ -420,10 +423,6 @@
             </div>
 
             <div class="grid-principal" id="grid-dinamico"></div>
-
-            <div class="footer-ingresos">
-                <div class="caja-ingresos">INGRESOS TOTALES: <span id="total-ing">...</span></div>
-            </div>
 
         </div>
     </div>
@@ -468,11 +467,19 @@
     `;
         }
 
-        grid.innerHTML += `
+      // Renderizado unificado de Referencias e Ingresos en la columna derecha
+grid.innerHTML += `
     <div class="col-referencias estilo-nunito">
-        <div id="titulo-ref" style="font-family:'Gagalin'; font-size:18px;font-weight: bold; margin-bottom:5px;">REFERENCIAS FLI</div>
+        <div id="titulo-ref" class="titulo-referencias">REFERENCIAS FLI</div>
         <div class="ref-box"><b id="label-ref-1"></b><span id="val-ref-1"></span></div>
+        <div class="ref-box"><b id="label-ref-2"></b><span id="val-ref-2"></span></div>
+        
+     <div class="bloque-ingresos-lateral">
+    <div class="titulo-referencias">INGRESOS TOTALES</div>
+    <div class="ref-box" style="text-decoration: none !important; font-weight: normal;">
+        <span style="text-decoration: none !important; font-weight: bold;">$ <span id="total-ing"></span></span>
     </div>
+</div>
 `;
 
         /* Lógica de Procesamiento de Imagen */
@@ -567,7 +574,7 @@
             });
 
             const link = document.createElement("a");
-            link.download = "Familia " + document.getElementById("nombre_guardado_apellido").value;
+            link.download = "Plantilla_Familia.png";
             link.href = canvas.toDataURL("image/png");
             link.click();
         }
